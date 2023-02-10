@@ -67,3 +67,5 @@ depends_on:
 ```
 
 Occassionally the ORDS service will start before the DB service has finished, which makes the ORDS service fail as the database is not yet up so a connection can not be made.  To get around this I mess around with the interval and timeout commands.
+
+Based on the above, I have a suspicion that the problem might be in the actual test and that the interval is what is making this work.
