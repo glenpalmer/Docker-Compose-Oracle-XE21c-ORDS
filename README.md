@@ -41,3 +41,29 @@ The ORDS container requires you to update the volume mapping to the local direct
 volumes:
   - <Update to your directory holding ORDS secret>:/opt/oracle/variables
 ```
+
+**IMPORTANT**
+
+As the ORDS container needs to wait for the Database container to complete and finish the build before it can commence, the ORDS container needs to be delayed starting.
+
+I've had mix success with this and the yaml file needs to be updated, I have tried to set a healthcheck on DB container and a depends_on on the ORDS container, this can be seen in lines 14 through to 18 on the DB service and lines 22 through to 24 on the ORDS service.
+
+DB Service healthcheck
+
+```
+healthcheck:
+  test: [ "CMD", "bash", "-c", "echo 'select 1 from dual;' | ORACLE_HOME=/opt/oracle/product/21c/dbhomeXE /opt/oracle/product/21c/dbhomeXE/bin/sqlplus -s USERNAME/PASSWORD@localhost"]
+  interval: 30s
+  retries: 60
+  timeout: 60s
+```
+
+ORDS Service depends_ons
+
+```
+depends_on:
+  db:
+    condition: service_healthy
+```
+
+Occassionally the ORDS service will start before the DB service has finished, which makes the ORDS service fail as the database is not yet up so a connection can not be made.  To get around this I mess around with the interval and timeout commands.
